@@ -32,4 +32,4 @@ jobs:
         mkdir build_dir
         cd build_dir
         cmake ..
-        cmake --build . --config Release --target install
+        cmake --build . --config Release

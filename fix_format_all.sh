@@ -3,7 +3,7 @@
 THIS_PATH="$(realpath "$0")"
 THIS_DIR="$(dirname "$THIS_PATH")"
 
-for dir in " "
+for dir in "containers"
 do
     FILE_LIST="$(find "$THIS_DIR/$dir"| grep -E ".*(\.cpp|\.c|\.h|\.hpp)$")"
     clang-format -i $FILE_LIST

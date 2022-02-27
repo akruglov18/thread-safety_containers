@@ -1,0 +1,35 @@
+on: [push, pull_request]
+
+jobs:
+  ubuntu-clang-build:
+    runs-on: ubuntu-latest
+    env:
+        CC: clang-9
+        CXX: clang++-9
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install clang-9
+        sudo apt-get install python3-pip
+        sudo python3 -m pip install --upgrade pip
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make -j4
+        cd ..
+  windows-msvc-build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.3
+    - name: Build
+      run: |
+        mkdir build_dir
+        cd build_dir
+        cmake ..
+        cmake --build . --config Release --target install

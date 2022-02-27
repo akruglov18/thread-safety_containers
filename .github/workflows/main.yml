@@ -21,6 +21,10 @@ jobs:
         cmake ..
         make -j4
         cd ..
+    - name: Run
+      run: |
+        cd build/bin
+        ./main
   windows-msvc-build:
     runs-on: windows-latest
     steps:
@@ -29,7 +33,12 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.3
     - name: Build
       run: |
-        mkdir build_dir
-        cd build_dir
+        mkdir build
+        cd build
         cmake ..
         cmake --build . --config Release
+        cd ..
+    - name: Run
+      run: |
+        cd build/bin
+        ./main

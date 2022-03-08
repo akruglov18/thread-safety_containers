@@ -1,4 +1,4 @@
-set(ProjectId Containers)
+set(ProjectId containers)
 project(${ProjectId})
 
 file(GLOB ALL_SOURCE_FILES *.cpp *.h *.hpp)

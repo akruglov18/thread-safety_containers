@@ -8,8 +8,11 @@ class Common {
     T& get() {
         return obj;
     }
-    std::mutex& get_mutex() {
-        return resource;
+    void lock() {
+        resource.lock();
+    }
+    void unlock() {
+        resource.unlock();
     }
     private:
     T& obj;

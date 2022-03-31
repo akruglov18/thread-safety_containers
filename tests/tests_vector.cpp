@@ -4,7 +4,6 @@
 #include <thread>
 #include <gtest/gtest.h>
 #include <iostream>
-#include "seidel.h"
 
 namespace {
 
@@ -59,15 +58,17 @@ TEST_P(CommonVector, IncrAndDecr1) {
     std::vector<int> vect(size);
     Common a(vect);
     auto incr = [&](std::size_t ind) {
+        auto& obj = a.get();
         for(std::size_t j = 0; j < count; j++) {
             std::lock_guard<std::mutex> guard(a.get_mutex());
-            a.get()[ind]++;
+            obj[ind]++;
         }
     };
     auto decr = [&](std::size_t ind) {
+        auto& obj = a.get();
         for(std::size_t j = 0; j < count; j++) {
             std::lock_guard<std::mutex> guard(a.get_mutex());
-            a.get()[ind]--;
+            obj[ind]--;
         }
     };
     auto start = std::chrono::high_resolution_clock::now();
@@ -93,24 +94,5 @@ INSTANTIATE_TEST_SUITE_P(/**/, CommonVector,
         testing::ValuesIn(counts)
     )
 );
-
-TEST(Seidel, check) {
-    std::vector<double> first = {15.0, 1.8};
-    std::vector<double> sec = {1.1, 10.3};
-    std::vector<double> b = {14.0, 12.0};
-    std::vector<std::vector<double>> matr = {first, sec};
-    auto x = seidel(matr, b);
-    for(std::size_t i = 0; i < x.get_size(); i++) {
-        std::cout << x[i] << " ";
-    }
-    std::cout << "\n";
-    for(std::size_t i = 0; i < 2; ++i) {
-        double sum = 0;
-        for(int j = 0; j < 2; ++j) {
-            sum += x[j] * matr[i][j];
-        }
-        std::cout << sum << " " << b[i] << '\n';
-    }
-}
 
 } // namespace

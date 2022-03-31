@@ -42,8 +42,9 @@ public:
         if(size != other.size)
             return false;
         for(std::size_t i = 0; i < size; i++) {
-            if(data[i] != other.data[i])
+            if(data[i] != other.data[i]) {
                 return false;
+            }
         }
         return true;
     }
@@ -131,12 +132,10 @@ public:
     }
 
     std::atomic<T>& operator[](std::size_t index) {
-        assert(index < size);
         return data[index];
     }
 
     const std::atomic<T>& operator[](std::size_t index) const {
-        assert(index < size);
         return data[index];
     }
 

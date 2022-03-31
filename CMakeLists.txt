@@ -13,6 +13,7 @@ set(ProjectId main)
 project(${ProjectId})
 
 add_subdirectory(containers)
+add_subdirectory(matrix_op)
 add_subdirectory(tests)
 
 add_executable(${ProjectId} main.cpp)

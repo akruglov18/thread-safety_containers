@@ -1,11 +1,11 @@
 on: [push, pull_request]
 
 jobs:
-  ubuntu-clang-build:
+  ubuntu-gcc-build:
     runs-on: ubuntu-latest
     env:
-        CC: clang-9
-        CXX: clang++-9
+        CC: gcc-9
+        CXX: g++-9
     steps:
     - uses: actions/checkout@v1
     - name: Setup environment

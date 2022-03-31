@@ -18,12 +18,12 @@ TEST_P(AtomicVector, IncrAndDecr) {
     auto count = std::get<1>(params);
     AtomicsVector<int> a(size, 0);
     auto incr = [&](std::size_t ind) {
-        for(int j = 0; j < count; j++) {
+        for(std::size_t j = 0; j < count; j++) {
             a[ind]++;
         }
     };
     auto decr = [&](std::size_t ind) {
-        for(int j = 0; j < count; j++) {
+        for(std::size_t j = 0; j < count; j++) {
             a[ind]--;
         }
     };
@@ -59,13 +59,13 @@ TEST_P(CommonVector, IncrAndDecr1) {
     std::vector<int> vect(size);
     Common a(vect);
     auto incr = [&](std::size_t ind) {
-        for(int j = 0; j < count; j++) {
+        for(std::size_t j = 0; j < count; j++) {
             std::lock_guard<std::mutex> guard(a.get_mutex());
             a.get()[ind]++;
         }
     };
     auto decr = [&](std::size_t ind) {
-        for(int j = 0; j < count; j++) {
+        for(std::size_t j = 0; j < count; j++) {
             std::lock_guard<std::mutex> guard(a.get_mutex());
             a.get()[ind]--;
         }
@@ -100,11 +100,11 @@ TEST(Seidel, check) {
     std::vector<double> b = {14.0, 12.0};
     std::vector<std::vector<double>> matr = {first, sec};
     auto x = seidel(matr, b);
-    for(int i = 0; i < x.get_size(); i++) {
+    for(std::size_t i = 0; i < x.get_size(); i++) {
         std::cout << x[i] << " ";
     }
     std::cout << "\n";
-    for(int i = 0; i < 2; ++i) {
+    for(std::size_t i = 0; i < 2; ++i) {
         double sum = 0;
         for(int j = 0; j < 2; ++j) {
             sum += x[j] * matr[i][j];

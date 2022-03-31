@@ -6,23 +6,23 @@
 #include <cassert>
 #include <atomic>
 
-template<class T, class Enable = void>
-class Vector {
+template<class T>
+class SynchVector {
 public:
-    Vector() : capacity(0), size(0), data(nullptr) {
+    SynchVector() : capacity(0), size(0), data(nullptr) {
     }
 
-    Vector(std::size_t _size) : capacity(_size), size(_size), data(new T[_size]) {
+    SynchVector(std::size_t _size) : capacity(_size), size(_size), data(new T[_size]) {
     }
 
-    Vector(const Vector& vec) : capacity(vec.capacity), size(vec.size)
+    SynchVector(const SynchVector& vec) : capacity(vec.capacity), size(vec.size)
                               , data(static_cast<T*>(::operator new(sizeof(T) * capacity))) {
         for (std::size_t i = 0; i < size; ++i) {
             new(data + i) T(vec.data[i]);
         }
     }
 
-    ~Vector() {
+    ~SynchVector() {
         clear();
     }
 
@@ -38,7 +38,7 @@ public:
         return data[index];
     }
 
-    bool operator==(const Vector& other) {
+    bool operator==(const SynchVector& other) {
         if(size != other.size)
             return false;
         for(std::size_t i = 0; i < size; i++) {
@@ -97,11 +97,6 @@ public:
         }
     }
 
-    std::size_t get_size() const {
-        std::lock_guard<std::mutex> guard(resource);
-        return size;
-    }
-
 private:
     std::mutex resource;
     std::size_t capacity;
@@ -110,16 +105,19 @@ private:
 };
 
 template<class T>
-class Vector<T, typename std::enable_if<is_atomic<T>::value>::type> {
+class AtomicsVector {
 public:
-    Vector() : capacity(0), size(0), data(nullptr) {
+    AtomicsVector() : capacity(0), size(0), data(nullptr) {
     }
 
-    Vector(std::size_t _size) : capacity(_size), size(_size) {
+    AtomicsVector(std::size_t _size, T value = T{}) : capacity(_size), size(_size) {
         data = new std::atomic<T>[size];
+        for(std::size_t i = 0; i < size; i++) {
+            std::atomic_init(&data[i], value);
+        }
     }
 
-    Vector(const Vector& other) {
+    AtomicsVector(const AtomicsVector& other) {
         std::atomic_init(&size, other.size.load());
         std::atomic_init(&capacity, other.capacity.load());
         data = static_cast<std::atomic<T>*>(::operator new(sizeof(std::atomic<T>) * capacity.load()));
@@ -128,7 +126,7 @@ public:
         }
     }
 
-    ~Vector() {
+    ~AtomicsVector() {
         clear();
     }
 
@@ -142,7 +140,7 @@ public:
         return data[index];
     }
 
-    bool operator==(const Vector& other) {
+    bool operator==(const AtomicsVector& other) {
         if(size != other.size)
             return false;
         for(std::size_t i = 0; i < size; i++) {
@@ -167,6 +165,7 @@ public:
         capacity = 0;
         size = 0;
     }
+
     std::size_t get_size() const {
         return size;
     }

@@ -16,15 +16,11 @@ public:
         data[count] = val;
         count++;
     }
-    void pop() {
+    T top() {
         std::lock_guard<std::mutex> guard(resource);
         assert(count > 0);
         count--;
-    }
-    T& top() {
-        std::lock_guard<std::mutex> guard(resource);
-        assert(count > 0);
-        return data[count - 1];
+        return data[count];
     }
     ~Stack() {
         delete[] data;

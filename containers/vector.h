@@ -98,6 +98,10 @@ public:
         }
     }
 
+    std::size_t get_size() const {
+        return size;
+    }
+
 private:
     std::mutex resource;
     std::size_t capacity;

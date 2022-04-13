@@ -17,4 +17,4 @@ add_subdirectory(matrix_op)
 add_subdirectory(tests)
 
 add_executable(${ProjectId} main.cpp)
-target_link_libraries(${ProjectId} containers)
+target_link_libraries(${ProjectId} containers matrix_op)

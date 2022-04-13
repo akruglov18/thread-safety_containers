@@ -19,17 +19,15 @@ public:
         last = (last + 1) % size;
         count = std::min(size, count + 1);
     }
-    T& front() {
+    T front() {
         std::lock_guard<std::mutex> guard(resource);
         assert(count > 0);
-        return data[first];
-    }
-    void pop() {
-        std::lock_guard<std::mutex> guard(resource);
-        assert(count > 0);
+        T temp = data[first];
         count--;
         first = (first + 1) % size;
+        return temp;
     }
+
     ~Queue() {
         delete[] data;
         data = nullptr;

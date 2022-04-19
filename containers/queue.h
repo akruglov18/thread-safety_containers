@@ -11,6 +11,13 @@ public:
         first = last = count = 0;
         data = new T[size];
     }
+    Queue(const Queue& other) : size(other.size) {
+        first = last = count = 0;
+        data = new T[size];
+        for (std::size_t i = 0; i < size; i++) {
+            data[i] = other.data[i];
+        }
+    }
     void push(const T& val) {
         std::lock_guard<std::mutex> guard(resource);
         if (count == size)
@@ -26,6 +33,10 @@ public:
         count--;
         first = (first + 1) % size;
         return temp;
+    }
+
+    std::size_t get_size() const {
+        return count;
     }
 
     ~Queue() {

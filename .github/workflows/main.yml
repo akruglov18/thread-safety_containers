@@ -44,3 +44,4 @@ jobs:
       run: |
         cd build/bin
         ./containers_tests
+        ./main

@@ -6,10 +6,10 @@
 #include "queue.h"
 
 enum class TaskDesc {
-    SUM, SUB, END
+    CALC, END
 };
 
-std::vector<TaskDesc> tasks_types = {TaskDesc::SUM, TaskDesc::SUB, TaskDesc::END};
+std::vector<TaskDesc> tasks_types = {TaskDesc::CALC, TaskDesc::END};
 
 class Task {
 public:
@@ -18,14 +18,14 @@ public:
     int difficulty = 0;
     Task(bool end = false) {
         if (end) {
-            task = tasks_types[2];
+            task = tasks_types[1];
         } else {
-            std::random_device device;
-            std::mt19937 gen(device());
-            int key = gen() % 2;
-            task = tasks_types[key];
+            std::random_device rd{};
+            std::mt19937 gen{rd()};
+            std::normal_distribution<> d{500, 100};
+            task = tasks_types[0];
             ind = gen() % 5;
-            difficulty = gen() % 100;
+            difficulty = std::round(d(gen));
         }
     }
 };
@@ -33,7 +33,7 @@ public:
 int main() {
     AtomicsVector<int> vec(5);
     std::vector<int> ref(5);
-    std::size_t count = 3;
+    std::size_t count = 5;
     AtomicsVector<int> workload(5);
     std::vector<Queue<Task>> queues(count, Queue<Task>(1000000));
     auto process = [&](int owned_pos) {
@@ -42,47 +42,41 @@ int main() {
                 continue;
             auto cur_task = queues[owned_pos].front();
             workload[cur_task.ind] -= cur_task.difficulty;
-            switch (cur_task.task)
-            {
-            case TaskDesc::SUM:
-                vec[cur_task.ind]++;
-                break;
-            case TaskDesc::SUB:
-                vec[cur_task.ind]--;
-                break;
-            case TaskDesc::END:
-            default:
+            if (cur_task.task == TaskDesc::CALC) {
+                while(cur_task.difficulty--) {
+                    auto cur = std::sin(cur_task.ind / 10.) * std::sin(cur_task.ind / 10.) + std::cos(cur_task.ind / 10.) * std::cos(cur_task.ind / 10.);
+                    auto res = static_cast<int>(cur);
+                    if (res == 0)
+                        res++;
+                    vec[cur_task.ind] += res;
+                }
+            } else {
                 return;
             }
-            
+
         }
     };
     std::size_t start_count = 100000;
     std::random_device device;
     std::mt19937 gen(device());
-    for (std::size_t i = 0; i < 3 *start_count; i++) {
-        auto task = Task();
-        if(task.task == TaskDesc::SUM)
-            ref[task.ind]++;
-        else
-            ref[task.ind]--;
-        workload[task.ind] += task.difficulty;
-        queues[gen() % count].push(task);
-    }
 
     std::vector<std::thread> thread_group(count);
     for (std::size_t i = 0; i < count; i++) {
         thread_group[i] = std::thread(process, i);
     }
 
-    for (std::size_t i = 0; i < 7 * start_count; i++) {
+    for (std::size_t i = 0; i < start_count; i++) {
         auto task = Task();
-        if(task.task == TaskDesc::SUM)
-            ref[task.ind]++;
-        else
-            ref[task.ind]--;
+        ref[task.ind] += task.difficulty;
         workload[task.ind] += task.difficulty;
-        queues[gen() % count].push(task);
+        int num = 0, min = workload[0].load();
+        for (std::size_t i = 1; i < workload.get_size(); i++) {
+            if (workload[i].load() < min) {
+                min = workload[i].load();
+                num = i;
+            }
+        }
+        queues[num].push(task);
     }
 
     for (std::size_t i = 0; i < count; i++) {

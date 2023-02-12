@@ -12,11 +12,12 @@ struct Accessor {
     }
 };
 
+template<typename T>
 class Vector {
 private:
-    int* data;
-    int size;
-    int capacity;
+    T* data;
+    size_t size;
+    size_t capacity;
     bool flag;
     std::atomic<int> cnt;
     std::mutex growth;
@@ -25,14 +26,14 @@ public:
 
     }
 
-    void push_back(const int& value) {
+    void push_back(const T& value) {
         growth.lock();
         flag = true;
         while (cnt != 0) {}
 
         if (size == capacity) {
-            int new_capacity = capacity * 2 + 1;
-            int* new_data = new int[new_capacity];
+            size_t new_capacity = capacity * 2 + 1;
+            T* new_data = new int[new_capacity];
             for (int i = 0; i < size; i++) {
                 new_data[i] = data[i];
             }
@@ -52,7 +53,7 @@ public:
         return size;
     }
 
-    int& operator[](size_t i) {
+    T& operator[](size_t i) {
         Accessor accessor(cnt);
         while (true) {
             while (flag) {}
